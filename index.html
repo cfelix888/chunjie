@@ -1,0 +1,294 @@
+<!-- index.html - 随机显示GitHub上的图片 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>春节随机图片</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+            font-family: "Microsoft YaHei", sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+        .container {
+            max-width: 100%;
+            width: 800px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        h1::before { content: "🏮 "; }
+        h1::after { content: " 🎉"; }
+        .subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        #randomImage {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            transition: transform 0.3s;
+            border: 5px solid #ffd700;
+            margin: 20px 0;
+        }
+        #randomImage:hover {
+            transform: scale(1.02);
+        }
+        .info {
+            background: rgba(255, 215, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+        button {
+            background: linear-gradient(135deg, #ffd700 0%, #ff9800 100%);
+            color: #b71c1c;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        .tip {
+            margin-top: 20px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        .qr-code {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            display: inline-block;
+        }
+        .qr-code img {
+            width: 150px;
+            height: 150px;
+            border: 5px solid white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">加载中...</div>
+    
+    <div class="container">
+        <h1>春节快乐！</h1>
+        <p class="subtitle">扫码或点击图片，随机显示春节美图</p>
+        
+        <div id="imageContainer">
+            <img id="randomImage" src="" alt="随机春节图片" onclick="refreshImage()">
+        </div>
+        
+        <div class="info" id="imageInfo">
+            正在加载图片...
+        </div>
+        
+        <div>
+            <button onclick="refreshImage()">🔄 随机换一张</button>
+            <button onclick="shareImage()">📤 分享给朋友</button>
+        </div>
+        
+        <p class="tip">点击图片或按钮可以随机更换图片</p>
+        
+        <div class="qr-code">
+            <div style="color: black; margin-bottom: 10px; font-weight: bold;">📱 扫码访问</div>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://cfelix888.github.io/chunjie/" 
+                 alt="二维码">
+            <div style="color: #666; font-size: 12px; margin-top: 10px;">微信/浏览器扫码</div>
+        </div>
+    </div>
+    
+    <script>
+        // 图片列表 - 修改为你GitHub上的图片文件名
+        // 注意：文件名必须完全匹配（包括大小写）
+        const images = [
+            "chunlian.jpg",
+            "fuzi.jpg", 
+            "hongbao.jpg",
+            "tangyuan.jpg",
+            "denglong.jpg",
+            "yanhua.jpg"
+            // 添加更多图片文件名...
+        ];
+        
+        let currentImageIndex = -1;
+        let failedImages = [];
+        
+        // 显示加载动画
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+        
+        // 隐藏加载动画
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        // 获取随机图片（确保不重复）
+        function getRandomImageIndex() {
+            if (images.length === 0) return -1;
+            
+            // 如果所有图片都尝试过了，重置
+            if (failedImages.length >= images.length) {
+                failedImages = [];
+            }
+            
+            let newIndex;
+            let attempts = 0;
+            
+            do {
+                newIndex = Math.floor(Math.random() * images.length);
+                attempts++;
+                
+                // 防止无限循环
+                if (attempts > 50) break;
+                
+            } while (newIndex === currentImageIndex || failedImages.includes(newIndex));
+            
+            return newIndex;
+        }
+        
+        // 刷新图片
+        async function refreshImage() {
+            showLoading();
+            
+            const newIndex = getRandomImageIndex();
+            if (newIndex === -1) {
+                document.getElementById('imageInfo').innerHTML = '没有可用的图片';
+                hideLoading();
+                return;
+            }
+            
+            currentImageIndex = newIndex;
+            const imageName = images[currentImageIndex];
+            
+            // 构建GitHub图片URL
+            const imageUrl = `images/${imageName}`;
+            const imgElement = document.getElementById('randomImage');
+            
+            // 添加时间戳防止缓存
+            const timestamp = new Date().getTime();
+            imgElement.src = `${imageUrl}?t=${timestamp}`;
+            
+            // 更新信息
+            document.getElementById('imageInfo').innerHTML = 
+                `🎨 图片 ${currentImageIndex + 1}/${images.length} - ${imageName}`;
+            
+            // 预加载下一张
+            preloadNextImage();
+        }
+        
+        // 预加载下一张图片
+        function preloadNextImage() {
+            const nextIndex = getRandomImageIndex();
+            if (nextIndex !== -1) {
+                const nextImage = new Image();
+                nextImage.src = `images/${images[nextIndex]}`;
+            }
+        }
+        
+        // 分享功能
+        function shareImage() {
+            const url = window.location.href;
+            const title = '春节随机图片';
+            const text = '看看这张随机春节图片！';
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: title,
+                    text: text,
+                    url: url
+                });
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(url)
+                    .then(() => alert('链接已复制到剪贴板！'))
+                    .catch(() => prompt('请手动复制链接：', url));
+            } else {
+                prompt('请手动复制链接：', url);
+            }
+        }
+        
+        // 图片加载成功
+        document.getElementById('randomImage').onload = function() {
+            hideLoading();
+            if (failedImages.includes(currentImageIndex)) {
+                failedImages = failedImages.filter(i => i !== currentImageIndex);
+            }
+        };
+        
+        // 图片加载失败
+        document.getElementById('randomImage').onerror = function() {
+            hideLoading();
+            if (!failedImages.includes(currentImageIndex)) {
+                failedImages.push(currentImageIndex);
+            }
+            document.getElementById('imageInfo').innerHTML = 
+                `❌ 图片加载失败，自动尝试下一张...`;
+            setTimeout(refreshImage, 1000);
+        };
+        
+        // 键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space' || e.code === 'Enter') {
+                e.preventDefault();
+                refreshImage();
+            }
+        });
+        
+        // 页面加载时显示第一张图片
+        window.onload = function() {
+            refreshImage();
+            
+            // 如果是微信浏览器，显示提示
+            if (/MicroMessenger/i.test(navigator.userAgent)) {
+                document.getElementById('imageInfo').innerHTML += 
+                    '<br><small>👆 长按图片可以保存到手机</small>';
+            }
+        };
+    </script>
+</body>
+</html>
