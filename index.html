@@ -45,6 +45,56 @@
     <img id="image">
     
     <script>
+// 优化：添加图片缓存
+const imageCache = new Map();
+
+// 优化：使用懒加载
+function lazyLoadImage(index) {
+    const imgSrc = images[index];
+    const cacheKey = 'images/' + imgSrc;
+    
+    // 检查缓存
+    if (imageCache.has(cacheKey)) {
+        return Promise.resolve(imageCache.get(cacheKey));
+    }
+    
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            imageCache.set(cacheKey, img);
+            resolve(img);
+        };
+        img.onerror = reject;
+        img.src = cacheKey + '?v=' + Date.now(); // 防止缓存
+    });
+}
+
+// 优化：逐步预加载（不阻塞页面）
+async function progressivePreload() {
+    // 立即加载第一张
+    try {
+        const firstImg = await lazyLoadImage(0);
+        showImage(0);
+    } catch (error) {
+        console.error('加载第一张图片失败:', error);
+    }
+    
+    // 后台加载其余图片
+    for (let i = 1; i < images.length; i++) {
+        lazyLoadImage(i).catch(() => {
+            console.warn(`图片 ${images[i]} 加载失败`);
+        });
+        
+        // 每加载一张等待一下，避免同时请求太多
+        if (i % 3 === 0) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+    }
+}
+
+// 在页面加载时调用
+window.addEventListener('DOMContentLoaded', progressivePreload);
+
         // 图片列表
         const images = [
             "马年窗贴-02.jpg", 
@@ -119,6 +169,7 @@
                 document.body.style.height = window.innerHeight + 'px';
             }
         };
+        
         
     </script>
 </body>
