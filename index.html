@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>蔚来可期 - 专属图片</title>
+    <title>蔚来可期</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -540,7 +540,8 @@
                 const displayId = deviceId.length > 20 ? 
                     deviceId.substring(0, 10) + '...' + deviceId.substring(deviceId.length - 10) : 
                     deviceId;
-                deviceIdDisplay.textContent = `设备: ${displayId}`;
+                // deviceIdDisplay.textContent = `设备: ${displayId}`
+                    ;
             }
         }
         
@@ -562,7 +563,7 @@
                 const imageName = CONFIG.images[imageIndex];
                 
                 // 3. 加载图片
-                updateLoadingStatus('正在加载图片...', deviceId);
+                updateLoadingStatus('新年buff派送中...', deviceId);
                 const imageElement = document.getElementById('image');
                 
                 try {
