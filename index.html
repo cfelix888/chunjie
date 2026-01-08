@@ -550,13 +550,13 @@
         async function initialize() {
             try {
                 // 更新加载状态
-                updateLoadingStatus('正在识别您的设备...');
+                updateLoadingStatus('');
                 
                 // 1. 获取或创建设备ID
                 const deviceId = getOrCreateDeviceId();
                 
                 // 2. 获取设备分配的图片索引
-                updateLoadingStatus('正在分配专属图片...', deviceId);
+                updateLoadingStatus('新年buff匹配中...', deviceId);
                 await new Promise(resolve => setTimeout(resolve, 500)); // 增加一点延迟让用户看到状态
                 
                 const imageIndex = getDeviceAssignedImageIndex(deviceId);
