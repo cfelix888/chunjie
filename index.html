@@ -2,426 +2,151 @@
 <html lang="zh-CN">
 <head>
     <meta charset="utf-8">
-    <title>蔚来可期 - 三星优化版</title>
+    <title>蔚来可期</title>
     
-    <!-- 三星必须的meta标签 -->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="format-detection" content="telephone=no, email=no">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
-    <!-- 三星浏览器专用 -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="蔚来可期">
-    <meta name="theme-color" content="#000000">
-    <meta name="msapplication-tap-highlight" content="no">
-    
-    <!-- 缓存控制 -->
+    <!-- 极简meta -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     
     <style>
-        /* 三星设备优化样式 */
-        * {
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
-            box-sizing: border-box;
-            touch-action: manipulation;
-        }
+        /* 极简CSS - 减少阻塞 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100vw; height: 100vh; overflow: hidden; background: #000; }
         
-        html, body {
-            width: 100vw;
-            height: 100vh;
-            height: -webkit-fill-available;
-            height: fill-available;
-            overflow: hidden;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #000000;
-            font-family: 
-                -apple-system, 
-                BlinkMacSystemFont, 
-                "Segoe UI", 
-                Roboto, 
-                "Helvetica Neue", 
-                Arial, 
-                "Noto Sans", 
-                sans-serif;
-        }
-        
-        /* 三星Safari浏览器特殊修复 */
-        @supports (-webkit-touch-callout: none) {
-            body {
-                height: -webkit-fill-available;
-            }
-        }
-        
-        #app {
-            width: 100vw;
-            height: 100vh;
-            height: -webkit-fill-available;
-            position: relative;
-            overflow: hidden;
-            background: #000;
-        }
-        
+        /* 加载动画 */
         .loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: #ffffff;
-            z-index: 1000;
-            background: rgba(0,0,0,0.8);
-            padding: 30px 40px;
-            border-radius: 20px;
-            min-width: 250px;
-            max-width: 90%;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 100;
         }
         
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255,255,255,0.2);
-            border-top-color: #ffffff;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.2);
+            border-top-color: white;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto 25px;
+            margin-bottom: 20px;
         }
         
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
         
-        .loading-text {
-            font-size: 18px;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-        
-        .status-text {
-            font-size: 14px;
-            color: #aaa;
-            min-height: 20px;
-            word-break: break-all;
-        }
-        
-        .progress-container {
-            width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 3px;
-            margin: 20px 0 10px;
-            overflow: hidden;
-            display: none;
-        }
-        
-        .progress-bar {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #007AFF, #00C6FF);
-            transition: width 0.3s ease;
-            border-radius: 3px;
-        }
-        
+        /* 图片容器 */
         .image-container {
-            width: 100%;
-            height: 100%;
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0; left: 0;
             background: #000;
+            display: none;
         }
         
-        #image {
+        .image-container img {
             width: 100%;
             height: 100%;
             object-fit: contain;
-            object-position: center;
-            image-rendering: -webkit-optimize-contrast;
-            image-rendering: crisp-edges;
-            -webkit-user-drag: none;
         }
         
+        /* 错误面板 */
         .error-panel {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw;
+            height: 100vh;
             background: rgba(0,0,0,0.95);
             color: white;
-            padding: 35px 30px;
-            border-radius: 20px;
-            text-align: center;
-            max-width: 90%;
-            width: 350px;
-            border: 1px solid #333;
             display: none;
-            z-index: 2000;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 200;
         }
         
-        .error-icon {
-            font-size: 50px;
-            margin-bottom: 20px;
-            display: block;
-            color: #FF9500;
-        }
-        
-        .error-title {
-            font-size: 22px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: #fff;
-        }
-        
-        .error-message {
-            font-size: 15px;
-            color: #ccc;
-            margin-bottom: 25px;
-            line-height: 1.6;
-            text-align: left;
+        .error-content {
+            max-width: 400px;
+            text-align: center;
         }
         
         .btn {
-            display: block;
-            width: 100%;
-            padding: 16px 20px;
+            margin: 10px;
+            padding: 12px 24px;
+            background: #007AFF;
+            color: white;
             border: none;
-            border-radius: 12px;
-            font-size: 17px;
-            font-weight: 600;
+            border-radius: 8px;
+            font-size: 16px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            margin-bottom: 15px;
-            text-decoration: none;
-            text-align: center;
-            outline: none;
-            position: relative;
-            overflow: hidden;
+            width: 200px;
         }
         
-        .btn:active {
-            transform: translateY(2px);
-        }
-        
-        .retry-btn {
-            background: linear-gradient(135deg, #007AFF 0%, #0056CC 100%);
-            color: white;
-            box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
-        }
-        
-        .retry-btn:active {
-            box-shadow: 0 3px 10px rgba(0, 122, 255, 0.4);
-        }
-        
-        .link-btn {
+        .btn-alt {
             background: transparent;
+            border: 1px solid #007AFF;
             color: #007AFF;
-            border: 2px solid #007AFF;
-        }
-        
-        .link-btn:active {
-            background: rgba(0, 122, 255, 0.1);
-        }
-        
-        .network-tips {
-            margin-top: 25px;
-            padding: 18px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
-            font-size: 13px;
-            color: #999;
-            text-align: left;
-            line-height: 1.7;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .network-tips strong {
-            color: #fff;
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-        
-        .debug-info {
-            position: fixed;
-            bottom: 10px;
-            left: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.8);
-            color: #0f0;
-            font-size: 11px;
-            font-family: 'Courier New', monospace;
-            padding: 10px;
-            border-radius: 6px;
-            z-index: 10000;
-            display: none;
-            border: 1px solid rgba(0,255,0,0.2);
-            max-height: 100px;
-            overflow-y: auto;
-        }
-        
-        .offline-indicator {
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            background: #FF3B30;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 25px;
-            font-size: 13px;
-            font-weight: 600;
-            display: none;
-            z-index: 10000;
-            box-shadow: 0 4px 12px rgba(255, 59, 48, 0.4);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        
-        .version-info {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            color: rgba(255,255,255,0.3);
-            font-size: 11px;
-            z-index: 1000;
-        }
-        
-        /* 三星低端设备优化 */
-        @media screen and (max-width: 360px) {
-            .loading {
-                padding: 25px 30px;
-                min-width: 220px;
-            }
-            
-            .spinner {
-                width: 40px;
-                height: 40px;
-            }
-            
-            .error-panel {
-                width: 320px;
-                padding: 30px 25px;
-            }
-            
-            .btn {
-                padding: 14px 18px;
-                font-size: 16px;
-            }
         }
     </style>
     
-    <!-- 预连接到关键资源 -->
-    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
-    <link rel="dns-prefetch" href="https://github.com">
-    <link rel="dns-prefetch" href="https://raw.githubusercontent.com">
+    <!-- 预加载关键资源 -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="preconnect" href="https://github.com">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 </head>
 <body>
-    <!-- 离线指示器 -->
-    <div class="offline-indicator" id="offlineIndicator">⚠️ 离线</div>
+    <!-- 加载界面 -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div id="status">加载中...</div>
+    </div>
     
-    <!-- 调试信息 -->
-    <div class="debug-info" id="debugInfo"></div>
+    <!-- 图片容器 -->
+    <div class="image-container" id="imageContainer">
+        <img id="image" alt="蔚来可期" crossorigin="anonymous">
+    </div>
     
-    <!-- 版本信息 -->
-    <div class="version-info">v3.0 - 三星优化版</div>
-    
-    <div id="app">
-        <!-- 加载界面 -->
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <div class="loading-text">正在连接...</div>
-            <div class="status-text" id="status">检测设备中...</div>
-            <div class="progress-container" id="progressContainer">
-                <div class="progress-bar" id="progressBar"></div>
+    <!-- 错误面板 -->
+    <div class="error-panel" id="errorPanel">
+        <div class="error-content">
+            <div style="font-size: 40px; margin-bottom: 15px;">⚠️</div>
+            <div style="font-size: 20px; margin-bottom: 10px;" id="errorTitle">加载失败</div>
+            <div style="font-size: 14px; color: #ccc; margin-bottom: 25px;" id="errorMsg">
+                请检查网络连接后重试
             </div>
-        </div>
-        
-        <!-- 图片容器 -->
-        <div class="image-container" id="imageContainer">
-            <img id="image" alt="蔚来可期马年窗贴" crossorigin="anonymous" decoding="async">
-        </div>
-        
-        <!-- 错误面板 -->
-        <div class="error-panel" id="errorPanel">
-            <span class="error-icon">⚠️</span>
-            <div class="error-title" id="errorTitle">连接失败</div>
-            <div class="error-message" id="errorMsg">
-                无法加载内容，请检查网络连接
-            </div>
-            
-            <button class="btn retry-btn" id="retryBtn">重新连接</button>
-            <button class="btn link-btn" id="linkBtn">解决方案</button>
-            
-            <div class="network-tips">
-                <strong>三星手机常见问题：</strong>
-                1. 浏览器安全限制（请使用Chrome）<br>
-                2. 网络代理设置错误<br>
-                3. 请关闭"安全WiFi"功能<br>
-                4. 清除浏览器缓存和数据
+            <button class="btn" id="retryBtn">重试</button>
+            <button class="btn btn-alt" id="altBtn">备用链接</button>
+            <div style="margin-top: 25px; font-size: 12px; color: #666;">
+                建议使用Chrome浏览器访问
             </div>
         </div>
     </div>
 
     <script>
-        // ==================== 配置 ====================
+        // ==================== 极速配置 ====================
         const CONFIG = {
-            // 图片源（针对GitHub Pages优化）
+            // 只使用最快最稳定的源
             imageSources: [
-                // 主源：jsDelivr CDN（对中国网络最友好）
+                // jsDelivr CDN（最快，中国可用）
                 {
-                    name: 'jsDelivr CDN',
-                    baseUrl: 'https://cdn.jsdelivr.net/gh/cfelix888/chunjie/images/',
-                    testUrl: 'https://cdn.jsdelivr.net/gh/cfelix888/chunjie/images/马年窗贴-02.jpg',
-                    priority: 1
-                },
-                // 备用：GitHub Pages
-                {
-                    name: 'GitHub Pages',
-                    baseUrl: 'https://cfelix888.github.io/chunjie/images/',
-                    testUrl: 'https://cfelix888.github.io/chunjie/images/马年窗贴-02.jpg',
-                    priority: 2
-                },
-                // 紧急备用：GitHub Raw
-                {
-                    name: 'GitHub Raw',
-                    baseUrl: 'https://raw.githubusercontent.com/cfelix888/chunjie/main/images/',
-                    testUrl: 'https://raw.githubusercontent.com/cfelix888/chunjie/main/images/马年窗贴-02.jpg',
-                    priority: 3
-                },
-                // 极端备用：使用IP地址
-                {
-                    name: 'IP直连',
-                    baseUrl: 'https://raw.githubusercontent.com/cfelix888/chunjie/main/images/',
-                    testUrl: 'https://raw.githubusercontent.com/cfelix888/chunjie/main/images/马年窗贴-02.jpg',
-                    priority: 4
+                    name: 'CDN',
+                    baseUrl: 'https://cdn.jsdelivr.net/gh/cfelix888/chunjie/images/'
                 }
             ],
             
             // 图片列表
             images: [
                 "马年窗贴-02.jpg",
-                "马年窗贴-03.jpg",
+                "马年窗贴-03.jpg", 
                 "马年窗贴-04.jpg",
                 "马年窗贴-05.jpg",
                 "马年窗贴-06.jpg",
@@ -430,766 +155,263 @@
                 "马年窗贴-09.jpg",
                 "马年窗贴-10.jpg",
                 "马年窗贴-11.jpg"
-            ],
-            
-            // 存储键名
-            storageKeys: {
-                deviceId: 'samsung_device_v3',
-                imageIndex: 'samsung_image_v3',
-                preferredSource: 'samsung_source_v3',
-                lastError: 'samsung_error_v3'
-            },
-            
-            // 超时设置（三星设备需要更长）
-            timeouts: {
-                connectionTest: 10000,    // 10秒
-                imageLoad: 20000,         // 20秒
-                retryDelay: 3000          // 3秒
-            },
-            
-            // 重试策略
-            retry: {
-                maxAttempts: 5,
-                backoffBase: 1500
-            }
+            ]
         };
-
-        // ==================== 设备检测 ====================
-        class DeviceDetector {
-            constructor() {
-                this.info = this.detect();
-                this.isSamsung = this.info.isSamsung;
-                this.isChina = this.info.isChina;
-            }
-            
-            detect() {
-                const ua = navigator.userAgent.toLowerCase();
-                const isSamsung = /samsung/i.test(ua) || /sm-[a-z][0-9]{3}/i.test(ua);
-                const isChina = /zh-cn/i.test(navigator.language) || 
-                               /china/i.test(navigator.language) ||
-                               /cn_/i.test(navigator.language);
-                
-                return {
-                    isSamsung,
-                    isChina,
-                    isIOS: /iphone|ipad|ipod/.test(ua),
-                    isAndroid: /android/.test(ua),
-                    isWechat: /micromessenger/.test(ua),
-                    browser: this.getBrowser(ua),
-                    model: this.getModel(ua),
-                    network: navigator.connection ? navigator.connection.effectiveType : 'unknown'
-                };
-            }
-            
-            getBrowser(ua) {
-                if (/samsungbrowser/.test(ua)) return 'Samsung Browser';
-                if (/chrome/.test(ua) && !/edg/.test(ua)) return 'Chrome';
-                if (/firefox/.test(ua)) return 'Firefox';
-                if (/safari/.test(ua) && !/chrome/.test(ua)) return 'Safari';
-                if (/edge/.test(ua)) return 'Edge';
-                return 'Unknown';
-            }
-            
-            getModel(ua) {
-                const match = ua.match(/sm-[a-z]([0-9]{3})/i);
-                return match ? `Galaxy S${match[1]}` : 'Unknown';
-            }
-            
-            log() {
-                console.log('📱 设备信息:', this.info);
-                this.updateDebug('device', `${this.info.browser} - ${this.info.model}`);
-                this.updateDebug('network', this.info.network);
-                this.updateDebug('region', this.info.isChina ? '中国' : '国际');
-            }
-            
-            updateDebug(key, value) {
-                const debug = document.getElementById('debugInfo');
-                if (debug) {
-                    const lines = debug.innerHTML.split('<br>').filter(l => !l.startsWith(key + ':'));
-                    lines.push(`${key}: ${value}`);
-                    debug.innerHTML = lines.slice(-5).join('<br>');
-                }
-            }
-        }
-
-        // ==================== 状态管理器 ====================
-        class StateManager {
+        
+        // ==================== 极简核心 ====================
+        class FastLoader {
             constructor() {
                 this.statusEl = document.getElementById('status');
-                this.progressEl = document.getElementById('progressBar');
-                this.progressContainer = document.getElementById('progressContainer');
+                this.loadingEl = document.getElementById('loading');
+                this.imageContainer = document.getElementById('imageContainer');
+                this.imageEl = document.getElementById('image');
+                this.errorPanel = document.getElementById('errorPanel');
+                this.errorTitle = document.getElementById('errorTitle');
+                this.errorMsg = document.getElementById('errorMsg');
+                
+                // 绑定按钮
+                document.getElementById('retryBtn').addEventListener('click', () => this.retry());
+                document.getElementById('altBtn').addEventListener('click', () => this.showAltLinks());
             }
             
-            update(text, progress = null) {
+            updateStatus(text) {
                 if (this.statusEl) {
                     this.statusEl.textContent = text;
-                }
-                console.log('状态:', text);
-                
-                if (progress !== null && this.progressEl) {
-                    this.progressEl.style.width = progress + '%';
-                    this.progressContainer.style.display = 'block';
-                } else if (this.progressContainer) {
-                    this.progressContainer.style.display = 'none';
                 }
             }
             
             showLoading() {
-                document.getElementById('loading').style.display = 'block';
-                document.getElementById('errorPanel').style.display = 'none';
-                document.getElementById('imageContainer').style.display = 'none';
-            }
-            
-            showError(title, message) {
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('errorPanel').style.display = 'block';
-                document.getElementById('imageContainer').style.display = 'none';
-                
-                document.getElementById('errorTitle').textContent = title;
-                document.getElementById('errorMsg').innerHTML = message;
+                this.loadingEl.style.display = 'flex';
+                this.imageContainer.style.display = 'none';
+                this.errorPanel.style.display = 'none';
             }
             
             showImage() {
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('errorPanel').style.display = 'none';
-                document.getElementById('imageContainer').style.display = 'block';
+                this.loadingEl.style.display = 'none';
+                this.imageContainer.style.display = 'block';
+                this.errorPanel.style.display = 'none';
             }
             
-            setOffline(offline) {
-                document.getElementById('offlineIndicator').style.display = offline ? 'block' : 'none';
-            }
-        }
-
-        // ==================== 网络管理器 ====================
-        class NetworkManager {
-            constructor() {
-                this.device = new DeviceDetector();
-                this.state = new StateManager();
-                this.currentSource = null;
-                this.lastTestTime = 0;
+            showError(title, message) {
+                this.loadingEl.style.display = 'none';
+                this.imageContainer.style.display = 'none';
+                this.errorPanel.style.display = 'flex';
+                
+                if (this.errorTitle) this.errorTitle.textContent = title;
+                if (this.errorMsg) this.errorMsg.innerHTML = message;
             }
             
-            // 测试连接（三星优化版）
-            async testConnection(url) {
-                return new Promise((resolve) => {
-                    const startTime = Date.now();
-                    const timeout = CONFIG.timeouts.connectionTest;
-                    
-                    // 方法1：使用XMLHttpRequest（三星浏览器兼容性好）
-                    const xhr = new XMLHttpRequest();
-                    xhr.timeout = timeout;
-                    
-                    const timer = setTimeout(() => {
-                        xhr.abort();
-                        resolve({ success: false, error: 'timeout', latency: Date.now() - startTime });
-                    }, timeout + 1000);
-                    
-                    xhr.onload = function() {
-                        clearTimeout(timer);
-                        const latency = Date.now() - startTime;
-                        resolve({ 
-                            success: xhr.status >= 200 && xhr.status < 300, 
-                            status: xhr.status,
-                            latency 
-                        });
-                    };
-                    
-                    xhr.onerror = xhr.ontimeout = function() {
-                        clearTimeout(timer);
-                        // 方法2：使用Image对象（备用）
-                        NetworkManager.testWithImage(url, startTime, resolve);
-                    };
-                    
-                    // 添加随机参数避免缓存
-                    const uniqueUrl = url + (url.includes('?') ? '&' : '?') + '_=' + Date.now() + Math.random();
-                    xhr.open('GET', uniqueUrl, true);
-                    
-                    // 三星浏览器可能需要特殊header
-                    if (this.device.isSamsung) {
-                        xhr.setRequestHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-                        xhr.setRequestHeader('Pragma', 'no-cache');
-                    }
-                    
-                    xhr.send();
-                });
-            }
-            
-            static testWithImage(url, startTime, resolve) {
-                const img = new Image();
-                const timeout = 8000;
-                const timer = setTimeout(() => {
-                    img.onload = img.onerror = null;
-                    resolve({ success: false, error: 'image_timeout', latency: Date.now() - startTime });
-                }, timeout);
-                
-                img.onload = function() {
-                    clearTimeout(timer);
-                    resolve({ success: true, latency: Date.now() - startTime });
-                };
-                
-                img.onerror = function() {
-                    clearTimeout(timer);
-                    resolve({ success: false, error: 'image_error', latency: Date.now() - startTime });
-                };
-                
-                // 三星设备需要crossOrigin
-                img.crossOrigin = 'anonymous';
-                img.src = url + '?test=' + Date.now();
-            }
-            
-            // 查找最佳源
-            async findBestSource() {
-                this.state.update('测试网络连接...', 10);
-                
-                // 如果有存储的首选源，先测试
-                const storedSource = localStorage.getItem(CONFIG.storageKeys.preferredSource);
-                if (storedSource && Date.now() - this.lastTestTime < 300000) { // 5分钟内
-                    const source = CONFIG.imageSources.find(s => s.name === storedSource);
-                    if (source) {
-                        this.state.update(`测试 ${source.name}...`, 30);
-                        const result = await this.testConnection(source.testUrl);
-                        if (result.success) {
-                            this.state.update(`✅ ${source.name} 可用`, 50);
-                            this.currentSource = source;
-                            return source;
-                        }
-                    }
+            // 获取设备ID（简化版）
+            getDeviceId() {
+                let id = localStorage.getItem('fast_device_id');
+                if (!id) {
+                    id = 'dev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+                    localStorage.setItem('fast_device_id', id);
                 }
-                
-                // 并行测试所有源
-                this.state.update('并行测试所有源...', 20);
-                const tests = CONFIG.imageSources.map(async (source) => {
-                    this.state.update(`测试 ${source.name}...`, 20 + source.priority * 10);
-                    try {
-                        const result = await this.testConnection(source.testUrl);
-                        return { source, result };
-                    } catch (e) {
-                        return { source, result: { success: false, error: e.message } };
-                    }
-                });
-                
-                const results = await Promise.allSettled(tests);
-                this.state.update('分析测试结果...', 70);
-                
-                // 找出可用的源
-                const available = [];
-                for (const r of results) {
-                    if (r.status === 'fulfilled') {
-                        const { source, result } = r.value;
-                        if (result.success) {
-                            available.push({ source, latency: result.latency || 9999 });
-                            console.log(`✅ ${source.name}: ${result.latency}ms`);
-                        } else {
-                            console.log(`❌ ${source.name}: ${result.error}`);
-                        }
-                    }
-                }
-                
-                if (available.length > 0) {
-                    // 选择最快或最适合三星的源
-                    available.sort((a, b) => {
-                        // 三星设备优先使用jsDelivr
-                        if (this.device.isSamsung) {
-                            if (a.source.name === 'jsDelivr CDN') return -1;
-                            if (b.source.name === 'jsDelivr CDN') return 1;
-                        }
-                        return a.latency - b.latency;
-                    });
-                    
-                    const best = available[0].source;
-                    this.state.update(`使用 ${best.name}`, 80);
-                    
-                    // 存储选择
-                    localStorage.setItem(CONFIG.storageKeys.preferredSource, best.name);
-                    this.lastTestTime = Date.now();
-                    this.currentSource = best;
-                    
-                    return best;
-                }
-                
-                return null;
+                return id;
             }
             
-            // 加载图片
-            async loadImage(imageName, source, attempt = 1) {
-                if (attempt > CONFIG.retry.maxAttempts) {
-                    throw new Error(`加载失败，已重试 ${CONFIG.retry.maxAttempts} 次`);
+            // 获取图片索引
+            getImageIndex(deviceId) {
+                // 使用简单哈希算法
+                let hash = 0;
+                for (let i = 0; i < deviceId.length; i++) {
+                    hash = ((hash << 5) - hash) + deviceId.charCodeAt(i);
+                    hash = hash & hash; // 转换为32位整数
                 }
-                
-                this.state.update(`加载图片 (${attempt}/${CONFIG.retry.maxAttempts})...`, 30 + attempt * 10);
-                
+                return Math.abs(hash) % CONFIG.images.length;
+            }
+            
+            // 直接加载图片（不测试源）
+            async loadImageDirectly() {
                 return new Promise((resolve, reject) => {
+                    const deviceId = this.getDeviceId();
+                    const imageIndex = this.getImageIndex(deviceId);
+                    const imageName = CONFIG.images[imageIndex];
+                    const source = CONFIG.imageSources[0]; // 直接使用第一个源
+                    
+                    this.updateStatus(`加载: ${imageName}`);
+                    
+                    const imgUrl = source.baseUrl + encodeURIComponent(imageName) + '?v=' + Date.now();
+                    
+                    console.log('开始加载:', imgUrl);
+                    
                     const img = new Image();
-                    const url = source.baseUrl + encodeURIComponent(imageName) + 
-                               '?v=' + Date.now() + '&att=' + attempt + 
-                               '&dev=' + (this.device.isSamsung ? 'samsung' : 'other');
+                    let loaded = false;
                     
-                    const timeout = setTimeout(() => {
-                        img.onload = img.onerror = null;
-                        reject(new Error('加载超时'));
-                    }, CONFIG.timeouts.imageLoad);
+                    // 设置超时
+                    const timeoutTimer = setTimeout(() => {
+                        if (!loaded) {
+                            img.onload = img.onerror = null;
+                            reject(new Error('加载超时 (15秒)'));
+                        }
+                    }, 15000);
                     
+                    // 成功回调
                     img.onload = () => {
-                        clearTimeout(timeout);
+                        loaded = true;
+                        clearTimeout(timeoutTimer);
+                        
                         if (img.complete && img.naturalWidth > 0) {
-                            // 三星设备图片渲染优化
-                            if (this.device.isSamsung) {
-                                img.style.imageRendering = 'crisp-edges';
-                                img.style.backfaceVisibility = 'hidden';
-                                img.style.transform = 'translateZ(0)';
-                            }
-                            resolve(img);
+                            console.log('✅ 图片加载成功');
+                            resolve({ img, imageName, source: source.name });
                         } else {
                             reject(new Error('图片不完整'));
                         }
                     };
                     
-                    img.onerror = (e) => {
-                        clearTimeout(timeout);
-                        console.error('图片加载错误:', e);
+                    // 错误回调
+                    img.onerror = (err) => {
+                        loaded = true;
+                        clearTimeout(timeoutTimer);
+                        console.error('❌ 图片加载失败:', err);
                         reject(new Error('加载失败'));
                     };
                     
-                    // 三星设备需要特殊设置
-                    if (this.device.isSamsung) {
-                        img.crossOrigin = 'anonymous';
-                        img.referrerPolicy = 'no-referrer';
-                        img.decoding = 'async';
-                    }
+                    // 开始加载
+                    img.crossOrigin = 'anonymous';
+                    img.src = imgUrl;
                     
-                    img.src = url;
-                    
-                    // 如果已经在缓存中
+                    // 如果图片已经在缓存中
                     if (img.complete) {
                         img.onload();
                     }
-                }).catch(async (error) => {
-                    console.warn(`第 ${attempt} 次尝试失败:`, error.message);
-                    
-                    // 指数退避
-                    const delay = CONFIG.retry.backoffBase * Math.pow(1.5, attempt - 1);
-                    await new Promise(r => setTimeout(r, delay));
-                    
-                    return this.loadImage(imageName, source, attempt + 1);
                 });
             }
-        }
-
-        // ==================== 应用核心 ====================
-        class AppCore {
-            constructor() {
-                this.network = new NetworkManager();
-                this.state = new StateManager();
-                this.device = this.network.device;
-                this.deviceId = null;
-                this.imageIndex = 0;
-            }
             
-            // 生成设备ID
-            getDeviceId() {
+            // 主加载流程
+            async load() {
                 try {
-                    let id = localStorage.getItem(CONFIG.storageKeys.deviceId);
-                    if (!id) {
-                        // 生成唯一ID
-                        id = 'samsung_' + Date.now() + '_' + 
-                             Math.random().toString(36).substr(2, 9) + '_' +
-                             (this.device.isSamsung ? 'sm' : 'ot');
-                        localStorage.setItem(CONFIG.storageKeys.deviceId, id);
-                    }
-                    this.deviceId = id;
-                    return id;
-                } catch (e) {
-                    // 如果localStorage失败
-                    this.deviceId = 'temp_' + Date.now();
-                    return this.deviceId;
-                }
-            }
-            
-            // 获取图片索引
-            getImageIndex(deviceId) {
-                try {
-                    const stored = localStorage.getItem(CONFIG.storageKeys.imageIndex);
-                    if (stored !== null) {
-                        const idx = parseInt(stored, 10);
-                        if (!isNaN(idx) && idx >= 0 && idx < CONFIG.images.length) {
-                            this.imageIndex = idx;
-                            return idx;
-                        }
-                    }
+                    this.showLoading();
+                    this.updateStatus('准备加载...');
                     
-                    // 基于设备ID计算
-                    let hash = 0;
-                    for (let i = 0; i < deviceId.length; i++) {
-                        hash = ((hash << 5) - hash) + deviceId.charCodeAt(i);
-                        hash = hash & 0x7FFFFFFF;
-                    }
+                    // 立即开始加载，不测试网络
+                    const result = await this.loadImageDirectly();
                     
-                    this.imageIndex = hash % CONFIG.images.length;
-                    localStorage.setItem(CONFIG.storageKeys.imageIndex, this.imageIndex.toString());
-                    return this.imageIndex;
-                } catch (e) {
-                    this.imageIndex = Math.floor(Math.random() * CONFIG.images.length);
-                    return this.imageIndex;
-                }
-            }
-            
-            // 初始化应用
-            async initialize() {
-                try {
-                    this.state.showLoading();
-                    this.device.log();
+                    // 显示图片
+                    this.imageEl.src = result.img.src;
+                    this.updateStatus('加载完成!');
                     
-                    // 1. 设备信息
-                    this.state.update('初始化设备...', 5);
-                    const deviceId = this.getDeviceId();
-                    const imageIndex = this.getImageIndex(deviceId);
-                    const imageName = CONFIG.images[imageIndex];
+                    // 延迟显示图片，确保渲染
+                    setTimeout(() => {
+                        this.showImage();
+                    }, 300);
                     
-                    this.state.update(`设备: ${this.device.info.model}`, 10);
-                    this.state.update(`图片: ${imageName}`, 15);
-                    
-                    // 2. 网络测试
-                    const source = await this.network.findBestSource();
-                    if (!source) {
-                        throw new Error('所有服务器都不可用，请检查网络');
-                    }
-                    
-                    this.state.update(`使用: ${source.name}`, 50);
-                    
-                    // 3. 加载图片
-                    const img = await this.network.loadImage(imageName, source);
-                    
-                    // 4. 显示
-                    const imgEl = document.getElementById('image');
-                    imgEl.src = img.src;
-                    imgEl.onload = () => {
-                        this.state.update('加载完成!', 100);
-                        setTimeout(() => {
-                            this.state.showImage();
-                            console.log('✅ 成功加载:', imageName);
-                            console.log('🌐 来源:', source.name);
-                        }, 500);
-                    };
-                    
-                    // 如果已经加载完成
-                    if (img.complete) {
-                        this.state.update('加载完成!', 100);
-                        setTimeout(() => {
-                            this.state.showImage();
-                        }, 500);
-                    }
+                    console.log('✅ 加载完成:', result.imageName, '来自:', result.source);
                     
                 } catch (error) {
-                    console.error('初始化失败:', error);
-                    await this.handleError(error);
+                    console.error('加载失败:', error);
+                    this.handleError(error);
                 }
             }
             
             // 错误处理
-            async handleError(error) {
+            handleError(error) {
                 let title = '加载失败';
-                let message = error.message;
+                let message = '请检查网络连接';
                 
-                // 网络错误
-                if (error.message.includes('网络') || 
-                    error.message.includes('连接') || 
-                    error.message.includes('服务器') ||
-                    error.message.includes('timeout')) {
-                    
-                    title = '网络问题';
+                if (error.message.includes('超时')) {
+                    title = '加载超时';
                     message = `
-                        <div style="line-height: 1.7;">
-                        <strong>三星手机常见网络问题：</strong><br><br>
-                        1. <strong>浏览器限制：</strong>三星浏览器较严格<br>
-                        &nbsp;&nbsp;👉 建议使用 <span style="color:#007AFF;">Chrome浏览器</span><br><br>
+                        <div style="text-align: left; line-height: 1.6;">
+                        <strong>可能的原因：</strong><br>
+                        1. 网络连接较慢<br>
+                        2. 服务器响应延迟<br>
+                        3. 图片文件较大<br><br>
                         
-                        2. <strong>网络代理：</strong>请关闭VPN/代理<br>
-                        &nbsp;&nbsp;👉 设置 → 连接 → 更多连接设置 → 私人DNS → 关闭<br><br>
-                        
-                        3. <strong>安全设置：</strong>关闭安全功能<br>
-                        &nbsp;&nbsp;👉 设置 → 隐私和安全 → 安全WiFi → 关闭<br><br>
-                        
-                        4. <strong>清除缓存：</strong><br>
-                        &nbsp;&nbsp;👉 浏览器设置 → 隐私 → 清除数据<br>
-                        </div>
-                    `;
-                }
-                // GitHub访问问题
-                else if (error.message.includes('GitHub')) {
-                    title = 'GitHub访问限制';
-                    message = `
-                        <div style="line-height: 1.7;">
-                        <strong>中国用户无法访问GitHub的解决方案：</strong><br><br>
-                        1. <strong>使用镜像站：</strong><br>
-                        &nbsp;&nbsp;<a href="https://cdn.jsdelivr.net/gh/cfelix888/chunjie/index.html" style="color:#007AFF;">点击这里使用jsDelivr镜像</a><br><br>
-                        
-                        2. <strong>备用链接：</strong><br>
-                        &nbsp;&nbsp;<a href="https://raw.githack.com/cfelix888/chunjie/main/index.html" style="color:#007AFF;">RawGit备用链接</a><br><br>
-                        
-                        3. <strong>浏览器推荐：</strong><br>
-                        &nbsp;&nbsp;✅ Chrome浏览器<br>
-                        &nbsp;&nbsp;❌ 避免使用三星自带浏览器<br><br>
-                        
-                        <small style="color:#888;">GitHub在中国部分地区访问不稳定，这是网络运营商的问题</small>
+                        <strong>建议：</strong><br>
+                        1. 点击"重试"按钮<br>
+                        2. 切换到4G/5G网络<br>
+                        3. 使用"备用链接"访问
                         </div>
                     `;
                 }
                 
-                this.state.showError(title, message);
-                
-                // 记录错误
-                try {
-                    localStorage.setItem(CONFIG.storageKeys.lastError, 
-                        JSON.stringify({
-                            time: new Date().toISOString(),
-                            error: error.message,
-                            device: this.device.info
-                        })
-                    );
-                } catch (e) {}
+                this.showError(title, message);
             }
             
             // 重试
             retry() {
-                this.state.showLoading();
-                this.state.update('重新连接中...', 0);
+                this.showLoading();
+                this.updateStatus('重新加载...');
                 
-                // 清除缓存
-                localStorage.removeItem(CONFIG.storageKeys.preferredSource);
-                
-                setTimeout(() => {
-                    this.initialize();
-                }, CONFIG.timeouts.retryDelay);
-            }
-            
-            // 显示解决方案
-            showSolutions() {
-                const message = `
-                    <div style="line-height: 1.7;">
-                    <strong>三星手机解决方案：</strong><br><br>
-                    
-                    <strong>方案一：更换浏览器（推荐）</strong><br>
-                    1. 安装 <span style="color:#007AFF;">Google Chrome</span><br>
-                    2. 在Chrome中访问：<br>
-                    &nbsp;&nbsp;<a href="https://cdn.jsdelivr.net/gh/cfelix888/chunjie/" style="color:#007AFF;">https://cdn.jsdelivr.net/gh/cfelix888/chunjie/</a><br><br>
-                    
-                    <strong>方案二：网络设置</strong><br>
-                    1. 关闭所有VPN/代理<br>
-                    2. 切换到4G/5G网络<br>
-                    3. 重启手机网络<br><br>
-                    
-                    <strong>方案三：三星设置</strong><br>
-                    1. 设置 → 应用程序 → 三星浏览器 → 存储 → 清除数据<br>
-                    2. 设置 → 连接 → 更多连接设置 → 私人DNS → 关闭<br>
-                    3. 设置 → 隐私和安全 → 安全WiFi → 关闭<br><br>
-                    
-                    <strong>备用访问地址：</strong><br>
-                    • <a href="https://cdn.jsdelivr.net/gh/cfelix888/chunjie/" style="color:#007AFF;">jsDelivr镜像站</a><br>
-                    • <a href="https://raw.githack.com/cfelix888/chunjie/main/index.html" style="color:#007AFF;">RawGit备用站</a><br>
-                    </div>
-                `;
-                
-                this.state.showError('解决方案', message);
-            }
-        }
-
-        // ==================== 兼容性修复 ====================
-        class CompatibilityFix {
-            static apply() {
-                const device = new DeviceDetector();
-                
-                // 通用修复
-                this.preventIssues();
-                
-                // 三星设备特殊修复
-                if (device.isSamsung) {
-                    this.fixSamsung();
-                }
-                
-                // 中国网络环境修复
-                if (device.isChina) {
-                    this.fixChinaNetwork();
-                }
-            }
-            
-            static preventIssues() {
-                // 禁止滚动
-                document.addEventListener('touchmove', (e) => {
-                    if (e.target.tagName !== 'BUTTON' && 
-                        e.target.tagName !== 'A' && 
-                        e.target.tagName !== 'INPUT' &&
-                        e.target.tagName !== 'TEXTAREA') {
-                        e.preventDefault();
-                    }
-                }, { passive: false });
-                
-                // 禁止缩放
-                document.addEventListener('gesturestart', (e) => e.preventDefault());
-                
-                // 确保页面在顶部
-                window.scrollTo(0, 0);
-                window.addEventListener('scroll', () => window.scrollTo(0, 0));
-                
-                // 修复100vh问题
-                this.fixViewportHeight();
-                window.addEventListener('resize', this.fixViewportHeight);
-            }
-            
-            static fixSamsung() {
-                console.log('应用三星设备修复');
-                
-                // 三星浏览器缓存问题
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.getRegistrations().then(regs => {
-                        regs.forEach(reg => reg.unregister());
-                    });
-                }
-                
-                // 清除可能的缓存
+                // 强制刷新缓存
                 if ('caches' in window) {
                     caches.keys().then(keys => {
                         keys.forEach(key => caches.delete(key));
                     });
                 }
                 
-                // 三星图片渲染优化
-                const style = document.createElement('style');
-                style.textContent = `
-                    img {
-                        image-rendering: -webkit-optimize-contrast !important;
-                        image-rendering: crisp-edges !important;
-                        -webkit-backface-visibility: hidden !important;
-                        backface-visibility: hidden !important;
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-            
-            static fixChinaNetwork() {
-                // 针对中国网络的优化
-                console.log('应用中国网络优化');
-                
-                // 预加载关键资源
-                const prefetch = document.createElement('link');
-                prefetch.rel = 'prefetch';
-                prefetch.href = 'https://cdn.jsdelivr.net/gh/cfelix888/chunjie/images/马年窗贴-02.jpg';
-                document.head.appendChild(prefetch);
-            }
-            
-            static fixViewportHeight() {
-                const vh = window.innerHeight * 0.01;
-                document.documentElement.style.setProperty('--vh', `${vh}px`);
-                
-                const app = document.getElementById('app');
-                if (app) {
-                    app.style.height = window.innerHeight + 'px';
-                }
-            }
-        }
-
-        // ==================== 网络监控 ====================
-        class NetworkMonitor {
-            static init() {
-                // 监听网络状态
-                window.addEventListener('online', () => {
-                    new StateManager().setOffline(false);
-                    document.getElementById('debugInfo').innerHTML += '<br>网络: 已连接';
-                    
-                    // 如果当前是错误状态，自动重试
-                    if (document.getElementById('errorPanel').style.display === 'block') {
-                        setTimeout(() => {
-                            window.app?.retry();
-                        }, 2000);
-                    }
-                });
-                
-                window.addEventListener('offline', () => {
-                    new StateManager().setOffline(true);
-                    document.getElementById('debugInfo').innerHTML += '<br>网络: 已断开';
-                });
-                
-                // 初始状态
-                new StateManager().setOffline(!navigator.onLine);
-            }
-        }
-
-        // ==================== 主入口 ====================
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 启动三星优化版...');
-            
-            // 显示调试信息（长按页面3秒显示）
-            let debugTapCount = 0;
-            let lastTapTime = 0;
-            document.addEventListener('touchstart', (e) => {
-                const now = Date.now();
-                if (now - lastTapTime < 300) {
-                    debugTapCount++;
-                    if (debugTapCount >= 5) {
-                        document.getElementById('debugInfo').style.display = 
-                            document.getElementById('debugInfo').style.display === 'none' ? 'block' : 'none';
-                        debugTapCount = 0;
-                    }
-                } else {
-                    debugTapCount = 1;
-                }
-                lastTapTime = now;
-            });
-            
-            // 应用兼容性修复
-            CompatibilityFix.apply();
-            
-            // 初始化网络监控
-            NetworkMonitor.init();
-            
-            // 创建应用实例
-            window.app = new AppCore();
-            
-            // 绑定按钮事件
-            document.getElementById('retryBtn').addEventListener('click', () => window.app.retry());
-            document.getElementById('linkBtn').addEventListener('click', () => window.app.showSolutions());
-            
-            // 防止右键菜单
-            document.addEventListener('contextmenu', (e) => e.preventDefault());
-            
-            // 延迟启动
-            setTimeout(() => {
-                window.app.initialize();
-            }, 800);
-        });
-        
-        // 页面完全加载
-        window.addEventListener('load', function() {
-            window.scrollTo(0, 0);
-            document.documentElement.scrollTop = 0;
-            document.body.scrollTop = 0;
-            
-            // 修复三星浏览器的地址栏问题
-            setTimeout(() => {
-                window.scrollTo(0, 0);
-            }, 300);
-            
-            // 三星设备加载优化
-            if (navigator.userAgent.includes('Samsung')) {
+                // 延迟加载
                 setTimeout(() => {
-                    if (document.readyState === 'complete') {
-                        document.getElementById('loading').style.opacity = '1';
-                    }
+                    this.load();
+                }, 800);
+            }
+            
+            // 显示备用链接
+            showAltLinks() {
+                const message = `
+                    <div style="text-align: left; line-height: 1.6;">
+                    <strong>备用访问方式：</strong><br><br>
+                    
+                    <strong>推荐（最快）：</strong><br>
+                    <a href="https://cdn.jsdelivr.net/gh/cfelix888/chunjie/" 
+                       style="color: #007AFF; text-decoration: none;"
+                       onclick="event.preventDefault(); window.open(this.href, '_blank');">
+                       https://cdn.jsdelivr.net/gh/cfelix888/chunjie/
+                    </a><br><br>
+                    
+                    <strong>备用：</strong><br>
+                    <a href="https://raw.githack.com/cfelix888/chunjie/main/index.html"
+                       style="color: #007AFF; text-decoration: none;"
+                       onclick="event.preventDefault(); window.open(this.href, '_blank');">
+                       https://raw.githack.com/cfelix888/chunjie/main/index.html
+                    </a><br><br>
+                    
+                    <strong>提示：</strong><br>
+                    • 长按链接选择"在新标签页打开"<br>
+                    • 建议使用Chrome浏览器<br>
+                    • 关闭VPN和代理
+                    </div>
+                `;
+                
+                this.showError('备用链接', message);
+            }
+            
+            // 初始化
+            init() {
+                // 立即开始加载
+                setTimeout(() => {
+                    this.load();
                 }, 100);
             }
+        }
+        
+        // ==================== 页面初始化 ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // 禁止默认行为
+            document.addEventListener('touchmove', (e) => {
+                if (e.target.tagName !== 'BUTTON' && 
+                    e.target.tagName !== 'A' && 
+                    e.target.tagName !== 'INPUT') {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+            
+            // 禁止缩放
+            document.addEventListener('gesturestart', (e) => e.preventDefault());
+            
+            // 确保页面位置
+            window.scrollTo(0, 0);
+            
+            // 创建加载器并启动
+            window.loader = new FastLoader();
+            window.loader.init();
         });
         
-        // 页面可见性变化
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden && window.app) {
-                // 页面重新可见时，刷新图片显示
-                const imgContainer = document.getElementById('imageContainer');
-                if (imgContainer && imgContainer.style.display === 'block') {
-                    imgContainer.style.display = 'none';
-                    setTimeout(() => {
-                        imgContainer.style.display = 'block';
-                    }, 50);
-                }
-            }
+        // 页面加载完成
+        window.addEventListener('load', function() {
+            window.scrollTo(0, 0);
         });
     </script>
 </body>
