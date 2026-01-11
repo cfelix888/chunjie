@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="utf-8">
-    <title>蔚来可期 - 网络优化版110</title>
+    <title>蔚来可期-你的新年buff</title>
     
     <!-- 苹果必须的meta标签 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -127,8 +127,7 @@
     <div id="app">
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <div>正在连接服务器...</div>
-            <div style="margin-top: 10px; font-size: 12px; color: #888;" id="status">初始化中</div>
+            <div>buff正在赶来中...</div>
         </div>
         
         <img id="image" alt="蔚来可期马年窗贴">
@@ -269,14 +268,14 @@
         }
         
         async function findBestSource() {
-            updateStatus('正在测试网络连接...');
+            updateStatus();
             
             // 检查本地存储的首选源
             const preferred = localStorage.getItem(CONFIG.storageKeys.preferredSource);
             if (preferred) {
                 const source = CONFIG.imageSources.find(s => s.name === preferred);
                 if (source) {
-                    updateStatus(`测试 ${source.name}...`);
+                    updateStatus();
                     const result = await testConnection(source.testUrl);
                     if (result.success) {
                         updateStatus(`✅ 使用存储的源: ${source.name}`);
@@ -287,7 +286,7 @@
             
             // 逐一测试所有源
             for (const source of CONFIG.imageSources) {
-                updateStatus(`测试 ${source.name}...`);
+                updateStatus();
                 const result = await testConnection(source.testUrl);
                 
                 if (result.success) {
@@ -348,7 +347,7 @@
         async function loadImageWithRetry(imageName, source, retries = 3) {
             for (let i = 0; i < retries; i++) {
                 try {
-                    updateStatus(`加载图片 (尝试 ${i + 1}/${retries})...`);
+                    updateStatus(`加载buff中...`);
                     
                     const imgUrl = source.baseUrl + encodeURIComponent(imageName) + 
                                  '?v=' + Date.now() + '&attempt=' + i;
@@ -402,7 +401,7 @@
         async function initializeApp() {
             try {
                 showLoading();
-                updateStatus('应用初始化...');
+                updateStatus();
                 
                 // 1. 获取设备信息
                 const deviceId = getDeviceId();
@@ -502,7 +501,7 @@
             const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
             
             if (isIOS || isSafari) {
-                console.log('检测到苹果设备，应用修复...');
+                console.log('检测到苹果设备...');
                 
                 // 修复iOS全屏问题
                 document.body.style.height = window.innerHeight + 'px';
