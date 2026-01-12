@@ -13,9 +13,11 @@
     <!-- 通用meta -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
-    
-    <meta http-equiv="Content-Security-Policy" 
-      content="default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'">
+
+    <!-- 在 head 中添加 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <style>
